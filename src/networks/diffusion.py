@@ -32,11 +32,10 @@ class DiffusionNetwork(nn.Module):
             nn.Sigmoid()
         )
 
-    def forward(self, x):
-        # Adjust input size to match the expected size
-        if x.shape[2:] != (900, 900):
-            x = nn.functional.pad(x, (0, 5, 0, 5))  # Add padding if necessary
+        # Upscale layer for compatibility with 900x900 images
+        self.upscale = nn.Upsample(size=(900, 900), mode='bilinear', align_corners=False)
 
+    def forward(self, x):
         # Apply down sampling
         down_sampled = self.down_sample(x)
 
