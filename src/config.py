@@ -13,6 +13,7 @@ KAGGLE_JSON = os.getenv("KAGGLE_JSON")
 KAGGLE_PATH = os.path.abspath("./kaggle")
 DATASET_PATH = os.path.abspath("./dataset")
 TRAIN_DATASET_PATH = os.path.join(DATASET_PATH, "train")
+SAMPLED_IMAGES_PATH = os.path.join(DATASET_PATH, "sampled")
 MODELS_PATH = os.path.abspath("./models")
 
 # Hyperparameters

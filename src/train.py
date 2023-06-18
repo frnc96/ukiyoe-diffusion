@@ -21,11 +21,10 @@ diffusion_net = DiffusionNetwork().to(config.DEVICE)
 criterion = nn.MSELoss()
 optimizer = optim.Adam(diffusion_net.parameters(), lr=config.LEARNING_RATE)
 
-print(f"Starting training on {config.DEVICE}\n")
-for epoch in tqdm(range(config.EPOCHS), desc="Epochs"):
+for epoch in tqdm(range(config.EPOCHS), desc="Epochs", position=0, leave=False, colour='green'):
     loss_hist = []
 
-    for images_batch in data_loader:
+    for images_batch in tqdm(data_loader, desc="Batch", position=1, leave=False, colour='blue'):
         optimizer.zero_grad()
 
         # Forward pass
@@ -41,7 +40,7 @@ for epoch in tqdm(range(config.EPOCHS), desc="Epochs"):
         # Record the batch loss
         loss_hist.append(loss.item())
 
-    if epoch % 1:
+    if epoch % 1 == 0:
         torch.save(diffusion_net.state_dict(), f"{config.MODELS_PATH}/epoch-{epoch}.pth")
 
     # Print progress
