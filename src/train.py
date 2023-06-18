@@ -8,6 +8,7 @@ from containers.diffusion_container import DiffusionContainer
 
 helper.create_dir_if_non_existent(config.MODELS_PATH)
 helper.create_dir_if_non_existent(config.WANDB_PATH)
+helper.create_dir_if_non_existent(config.SAMPLED_IMAGES_PATH)
 
 # Create an instance of the ImageDataset and pass the image directory and transform
 dataset = ImageDataset(image_dir=config.TRAIN_DATASET_PATH)
