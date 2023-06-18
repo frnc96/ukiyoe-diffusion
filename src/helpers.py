@@ -25,7 +25,7 @@ def init_wandb() -> wandb:
 def plot_sample_images(image_dict_list, filename):
     grid_size = (3, 3)
 
-    fig, ax = plt.subplots(grid_size[0], grid_size[1], figsize=(16, 9))
+    fig, ax = plt.subplots(grid_size[0], grid_size[1], figsize=(15, 15))
     ax = ax.flatten()
 
     assert len(image_dict_list) >= 9
