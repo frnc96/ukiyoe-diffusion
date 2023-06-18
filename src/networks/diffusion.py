@@ -36,6 +36,9 @@ class DiffusionNetwork(nn.Module):
         self.upscale = nn.Upsample(size=(900, 900), mode='bilinear', align_corners=False)
 
     def forward(self, x):
+        # Upscale input to 900x900
+        x = self.upscale(x)
+
         # Apply down sampling
         down_sampled = self.down_sample(x)
 
