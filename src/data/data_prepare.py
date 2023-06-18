@@ -18,7 +18,7 @@ class ImageDataset(Dataset):
         ])
 
     def __len__(self):
-        return len(self.image_files) // 1000
+        return len(self.image_files)
 
     def __getitem__(self, index):
         image_path = os.path.join(self.image_dir, self.image_files[index])
