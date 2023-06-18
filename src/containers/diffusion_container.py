@@ -56,7 +56,12 @@ class DiffusionContainer:
         outputs = self.model(images_batch)
 
         # Compute loss
-        loss = self.error_fn(outputs, images_batch)
+        try:
+            loss = self.error_fn(outputs, images_batch)
+        except:
+            print(outputs.shape())
+            print(images_batch)
+            exit(0)
 
         # Backward pass and optimization
         loss.backward()
