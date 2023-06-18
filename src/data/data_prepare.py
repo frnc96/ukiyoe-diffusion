@@ -54,6 +54,8 @@ class ImageDataset(Dataset):
         if self.transform is not None:
             padded_image = self.transform(padded_image)
 
+        print(padded_image.shape)
+
         return padded_image.to(config.DEVICE)
 
     def get_random(self):
