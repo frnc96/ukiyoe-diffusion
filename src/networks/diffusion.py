@@ -28,11 +28,15 @@ class DiffusionNetwork(nn.Module):
             nn.ConvTranspose2d(128, 64, kernel_size=4, stride=2, padding=1),
             nn.ReLU(),
 
-            nn.ConvTranspose2d(64, 3, kernel_size=3, stride=2, padding=1),
+            nn.ConvTranspose2d(64, 3, kernel_size=3, stride=1, padding=1),
             nn.Sigmoid()
         )
 
     def forward(self, x):
+        # Adjust input size to match the expected size
+        if x.shape[2:] != (900, 900):
+            x = nn.functional.pad(x, (0, 5, 0, 5))  # Add padding if necessary
+
         # Apply down sampling
         down_sampled = self.down_sample(x)
 
