@@ -8,7 +8,10 @@ helpers.create_dir_if_non_existent(config.SAMPLED_IMAGES_PATH)
 
 container = DiffusionContainer(load_pretrained=True)
 
-output_tensor = container.sample()
+output_tensor_list = container.sample()
+
+# Select image with the lowest loss
+output_tensor = min(output_tensor_list, key=lambda x: x["mse"])['tensor']
 
 # Convert the output tensor to an image
 output_image = transforms.ToPILImage()(output_tensor.squeeze())

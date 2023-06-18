@@ -2,6 +2,7 @@ from torch.utils.data import Dataset
 from torchvision import transforms
 import src.config as config
 from PIL import Image
+import random
 import os
 
 
@@ -54,3 +55,6 @@ class ImageDataset(Dataset):
             padded_image = self.transform(padded_image)
 
         return padded_image.to(config.DEVICE)
+
+    def get_random(self):
+        return self.__getitem__(random.randint(0, self.__len__()))
