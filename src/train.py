@@ -27,6 +27,8 @@ for epoch in tqdm(range(config.EPOCHS), desc="Epochs", position=0, leave=False, 
     loss_hist = []
 
     for images_batch in tqdm(data_loader, desc="Batch", position=1, leave=False, colour='blue'):
+        print(images_batch.shape())
+
         # Forward pass
         loss_val = container.batch_train(images_batch)
 
