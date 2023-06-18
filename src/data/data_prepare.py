@@ -12,7 +12,7 @@ class ImageDataset(Dataset):
         self.image_files = os.listdir(image_dir)
 
         self.transform = transforms.Compose([
-            # transforms.Resize(config.IMAGE_RESIZE),                 # Resize the image to a specific size
+            transforms.Resize(config.IMAGE_RESIZE),                 # Resize the image to a specific size
             transforms.ToTensor(),                                  # Convert the image to a tensor
             transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))  # Normalize the image tensor
         ])
