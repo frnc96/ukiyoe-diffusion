@@ -1,10 +1,10 @@
 import torch
 from tqdm import tqdm
-import src.config as config
-import src.helpers as helper
+import config as config
+import helpers as helper
 from torch.utils.data import DataLoader
-from src.data.data_prepare import ImageDataset
-from src.containers.diffusion_container import DiffusionContainer
+from data.data_prepare import ImageDataset
+from containers.diffusion_container import DiffusionContainer
 
 helper.create_dir_if_non_existent(config.MODELS_PATH)
 helper.create_dir_if_non_existent(config.WANDB_PATH)

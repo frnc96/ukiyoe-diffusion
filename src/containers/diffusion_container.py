@@ -3,11 +3,11 @@ import uuid
 import torch
 from tqdm import tqdm
 import torch.nn as nn
-import src.config as config
+import config as config
 import torch.optim as optim
-from src.networks.diffusion import DiffusionNetwork
+from networks.diffusion import DiffusionNetwork
 from skimage.metrics import mean_squared_error
-from src.data.data_prepare import ImageDataset
+from data.data_prepare import ImageDataset
 
 
 def evaluate_sample(ground_truth_tensor, generated_tensor):

@@ -4,8 +4,8 @@ import shutil
 import zipfile
 import subprocess
 from tqdm import tqdm
-import src.config as config
-import src.helpers as helper
+import config as config
+import helpers as helper
 
 
 # Create dirs
