@@ -1,6 +1,6 @@
 from torch.utils.data import Dataset
 from torchvision import transforms
-import config as config
+import src.config as config
 from PIL import Image
 import random
 import os

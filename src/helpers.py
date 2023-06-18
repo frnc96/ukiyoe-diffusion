@@ -1,7 +1,7 @@
 import os
 import wandb
 from pathlib import Path
-import config as config
+import src.config as config
 import matplotlib.pyplot as plt
 
 

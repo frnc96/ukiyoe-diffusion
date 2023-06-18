@@ -1,8 +1,8 @@
 import os
-import config as config
-import helpers as helpers
+import src.config as config
+import src.helpers as helpers
 import torchvision.transforms as transforms
-from containers.diffusion_container import DiffusionContainer
+from src.containers.diffusion_container import DiffusionContainer
 
 helpers.create_dir_if_non_existent(config.SAMPLED_IMAGES_PATH)
 
