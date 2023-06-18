@@ -1,0 +1,6 @@
+torch==2.0.1+cu118
+kaggle==1.5.13
+tqdm==4.65.0
+torchvision==0.15.2+cu118
+Pillow==9.5.0
+python-dotenv~=1.0.0
