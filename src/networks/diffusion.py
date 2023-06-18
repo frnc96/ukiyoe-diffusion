@@ -36,7 +36,10 @@ class DiffusionNetwork(nn.Module):
         # Apply down sampling
         down_sampled = self.down_sample(x)
 
+        # Adjust the image size for up sampling
+        up_sampled = nn.functional.interpolate(down_sampled, scale_factor=2, mode='bilinear', align_corners=False)
+
         # Apply up sampling
-        up_sampled = self.up_sample(down_sampled)
+        up_sampled = self.up_sample(up_sampled)
 
         return up_sampled
