@@ -64,13 +64,13 @@ class DiffusionContainer:
 
         return loss.item()
 
-    def sample(self, nr=100):
+    def sample(self, nr=10):
         self.model.eval()
 
         image_tensors = []
         for _ in tqdm(range(nr), desc="Sampling", position=1, leave=False, colour='blue'):
             # Create an image composed of noise
-            input_tensor = torch.randn(1, 3, config.IMAGE_RESIZE[0], config.IMAGE_RESIZE[1]).to(config.DEVICE)
+            input_tensor = torch.randn(3, config.IMAGE_RESIZE[0], config.IMAGE_RESIZE[1]).to(config.DEVICE)
 
             # Generate the output image using the pre-trained model
             with torch.no_grad():

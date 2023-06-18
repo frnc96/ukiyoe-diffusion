@@ -15,9 +15,20 @@ DATASET_PATH = os.path.abspath("./dataset")
 TRAIN_DATASET_PATH = os.path.join(DATASET_PATH, "train")
 SAMPLED_IMAGES_PATH = os.path.join(DATASET_PATH, "sampled")
 MODELS_PATH = os.path.abspath("./models")
+WANDB_PATH = os.path.abspath("./wandb")
+
+# Weights and Biases
+WANDB_KEY = os.getenv("WANDB_KEY")
+WANDB_ENTITY = os.getenv("WANDB_ENTITY")
+WANDB_PROJECT = os.getenv("WANDB_PROJECT")
+USE_WEIGHTS_AND_BIASES = os.getenv("USE_WEIGHTS_AND_BIASES").lower() in ('true', '1')
 
 # Hyperparameters
-EPOCHS = 10
+EPOCHS = 100
 BATCH_SIZE = 32
-LEARNING_RATE = 0.001
+LEARNING_RATE = 0.0003
 IMAGE_RESIZE = (1920, 1080)
+
+HYPER_PARAMETERS = {
+    'learning_rate': LEARNING_RATE,
+}
