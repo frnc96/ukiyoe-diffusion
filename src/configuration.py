@@ -25,7 +25,7 @@ USE_WEIGHTS_AND_BIASES = os.getenv("USE_WEIGHTS_AND_BIASES").lower() in ('true',
 
 # Hyperparameters
 EPOCHS = 100
-BATCH_SIZE = 32
+BATCH_SIZE = 13
 LEARNING_RATE = 0.0003
 IMAGE_RESIZE = (900, 900)
 
