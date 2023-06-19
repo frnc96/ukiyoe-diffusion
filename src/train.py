@@ -44,16 +44,13 @@ for epoch in tqdm(range(config.EPOCHS), desc="Epochs", position=0, leave=False, 
 
     # Sampling
     output_tensor_list = container.sample(nr=9)
-    min_image_mse = min(output_tensor_list, key=lambda x: x["mse"])['mse']
 
     mse_list = [d['mse'] for d in output_tensor_list]
     avg_image_mse = sum(mse_list) / len(mse_list)
 
     progress = {
-        'last_loss': loss_hist[-1],
-        'avg_loss': sum(loss_hist) / len(loss_hist),
-        'min_image_mse': min_image_mse,
-        'avg_image_mse': avg_image_mse,
+        'Average training loss': sum(loss_hist) / len(loss_hist),
+        'Average image MSE': avg_image_mse,
     }
 
     # Log progress in wandb
