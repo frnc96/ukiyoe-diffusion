@@ -1,9 +1,9 @@
 import torch
 from tqdm import tqdm
-import configuration as config
 import helpers as helper
+import configuration as config
 from torch.utils.data import DataLoader
-from data.data_prepare import ImageDataset
+from data.data_loader import ImageDataset
 from containers.diffusion_container import DiffusionContainer
 
 helper.create_dir_if_non_existent(config.MODELS_PATH)
@@ -11,7 +11,7 @@ helper.create_dir_if_non_existent(config.WANDB_PATH)
 helper.create_dir_if_non_existent(config.SAMPLED_IMAGES_PATH)
 
 # Create an instance of the ImageDataset and pass the image directory and transform
-dataset = ImageDataset(image_dir=config.TRAIN_DATASET_PATH)
+dataset = ImageDataset(image_tensor_dir=config.TENSOR_DATASET_PATH)
 
 # Create a DataLoader to handle batching and parallel data loading
 data_loader = DataLoader(dataset, batch_size=config.BATCH_SIZE, shuffle=True)

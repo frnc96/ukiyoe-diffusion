@@ -7,7 +7,7 @@ import configuration as config
 import torch.optim as optim
 from networks.diffusion import DiffusionNetwork
 from skimage.metrics import mean_squared_error
-from data.data_prepare import ImageDataset
+from data.data_loader import ImageDataset
 
 
 def evaluate_sample(ground_truth_tensor, generated_tensor):
@@ -77,7 +77,7 @@ class DiffusionContainer:
                 output_tensor = self.model(input_tensor)
 
             # Get random ground truth tensor from dataset
-            ground_truth_tensor = ImageDataset(image_dir=config.TRAIN_DATASET_PATH).get_random()
+            ground_truth_tensor = ImageDataset(image_tensor_dir=config.TENSOR_DATASET_PATH).get_random()
 
             mse = evaluate_sample(ground_truth_tensor, output_tensor)
 
