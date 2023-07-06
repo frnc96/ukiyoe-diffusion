@@ -5,9 +5,10 @@ from tqdm import tqdm
 import torch.nn as nn
 import configuration as config
 import torch.optim as optim
-from networks.diffusion import DiffusionNetwork
-from skimage.metrics import mean_squared_error
+from diffusers import UNet2DModel
+from diffusers import DDPMScheduler
 from data.data_loader import ImageDataset
+from skimage.metrics import mean_squared_error
 
 
 def evaluate_sample(ground_truth_tensor, generated_tensor):
@@ -32,7 +33,30 @@ def evaluate_sample(ground_truth_tensor, generated_tensor):
 class DiffusionContainer:
 
     def __init__(self, load_pretrained=False):
-        self.model = DiffusionNetwork().to(config.DEVICE)
+        # self.model = DiffusionNetwork().to(config.DEVICE)
+        self.model = UNet2DModel(
+            sample_size=config.IMAGE_RESIZE[0],  # the target image resolution
+            in_channels=3,  # the number of input channels, 3 for RGB images
+            out_channels=3,  # the number of output channels
+            layers_per_block=2,  # how many ResNet layers to use per UNet block
+            block_out_channels=(128, 128, 256, 256, 512, 512),  # the number of output channels for each UNet block
+            down_block_types=(
+                "DownBlock2D",  # a regular ResNet down  sampling block
+                "DownBlock2D",
+                "DownBlock2D",
+                "DownBlock2D",
+                "AttnDownBlock2D",  # a ResNet down sampling block with spatial self-attention
+                "DownBlock2D",
+            ),
+            up_block_types=(
+                "UpBlock2D",  # a regular ResNet up sampling block
+                "AttnUpBlock2D",  # a ResNet up sampling block with spatial self-attention
+                "UpBlock2D",
+                "UpBlock2D",
+                "UpBlock2D",
+                "UpBlock2D",
+            ),
+        )
         self.model_name = str(uuid.uuid4())
 
         if load_pretrained:
@@ -48,19 +72,29 @@ class DiffusionContainer:
 
         self.error_fn = nn.MSELoss()
         self.optimizer = optim.Adam(self.model.parameters(), lr=config.LEARNING_RATE)
+        self.noise_scheduler = DDPMScheduler(num_train_timesteps=config.TRAIN_TIME_STEPS)
 
     def batch_train(self, images_batch):
-        self.optimizer.zero_grad()
+        # Sample noise to add to the images
+        noise = torch.randn(images_batch.shape).to(config.DEVICE)
+        bs = images_batch.shape[0]
 
-        # Forward pass
-        outputs = self.model(images_batch)
+        # Sample a random timestep for each image
+        time_steps = torch.randint(
+            0, config.TRAIN_TIME_STEPS, (bs,), device=config.DEVICE
+        ).long()
 
-        # Compute loss
-        loss = self.error_fn(outputs, images_batch)
+        # Add noise to the clean images according to the noise magnitude at each timestep
+        # (this is the forward diffusion process)
+        noisy_images = self.noise_scheduler.add_noise(images_batch, noise, time_steps)
 
-        # Backward pass and optimization
-        loss.backward()
+        # Predict the noise residual
+        noise_pred = self.model(noisy_images, time_steps, return_dict=False)[0]
+        loss = self.error_fn(noise_pred, noise)
+
+        # Backward pass
         self.optimizer.step()
+        self.optimizer.zero_grad()
 
         return loss.item()
 

@@ -1,9 +1,10 @@
-torch==2.0.1
-kaggle==1.5.13
-tqdm==4.65.0
-torchvision==0.15.2
-Pillow==9.5.0
+torch~=2.0.1
+kaggle~=1.5.15
+tqdm~=4.65.0
+torchvision~=0.15.2
+Pillow~=10.0.0
 python-dotenv~=1.0.0
 scikit-image~=0.21.0
-wandb~=0.15.4
-matplotlib~=3.7.1
+wandb~=0.15.5
+matplotlib~=3.7.2
+diffusers~=0.17.1
