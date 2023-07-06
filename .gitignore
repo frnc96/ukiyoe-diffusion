@@ -1,7 +1,7 @@
 /.idea
 **/__pycache__/
+**/wandb
 /venv
-/wandb
 /dataset
 /kaggle
 /models

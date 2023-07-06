@@ -16,7 +16,14 @@ transform = transforms.Compose([
     transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))  # Normalize the image tensor
 ])
 
-for image_file in tqdm(os.listdir(config.TRAIN_DATASET_PATH), desc="Preparing Images"):
+for image_file in tqdm(os.listdir(config.TRAIN_DATASET_PATH)[:32], desc="Preparing Images"):
+    if os.path.exists(
+        os.path.join(
+            config.TENSOR_DATASET_PATH, image_file.replace('.jpg', '.pt')
+        )
+    ):
+        continue
+
     image_path = os.path.join(config.TRAIN_DATASET_PATH, image_file)
     original_image = Image.open(image_path)
 
@@ -57,5 +64,3 @@ for image_file in tqdm(os.listdir(config.TRAIN_DATASET_PATH), desc="Preparing Im
         image_file.replace('.jpg', '.pt')
     )
     torch.save(padded_image_tensor, tensor_path)
-
-    print(f"Saved {tensor_path}")
