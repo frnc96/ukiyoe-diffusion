@@ -11,7 +11,8 @@ class ImageDataset(Dataset):
         self.image_tensor_files = os.listdir(image_tensor_dir)
 
     def __len__(self):
-        return len(self.image_tensor_files)
+        # return len(self.image_tensor_files)
+        return 32
 
     def __getitem__(self, index):
         image_tensor_path = os.path.join(self.image_tensor_dir, self.image_tensor_files[index])

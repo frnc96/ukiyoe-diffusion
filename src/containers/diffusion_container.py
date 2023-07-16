@@ -118,7 +118,7 @@ class DiffusionContainer:
             # Update sample with step
             output_tensor = self.noise_scheduler.step(residual, time_step, input_tensor).prev_sample
 
-            if time_step % configuration.TRAIN_TIME_STEPS/10 == 0:
+            if time_step % (configuration.TRAIN_TIME_STEPS / 10) == 0:
                 output_tensor_list.append(output_tensor.squeeze(0))
 
         assert len(output_tensor_list) > 0, "No output samples were generated"

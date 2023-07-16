@@ -25,9 +25,9 @@ def init_wandb() -> wandb:
 def plot_sample_images(image_tensor_list, filename):
     images_len = len(image_tensor_list)
 
-    fig, ax = plt.subplots(1, images_len, figsize=(images_len*5, 5))
+    fig, axs = plt.subplots(1, images_len, figsize=(images_len*5, 5))
 
-    for i, ax in enumerate(ax):
+    for i, ax in enumerate(axs):
         image = image_tensor_list[i].permute(1, 2, 0).cpu().numpy()
 
         ax.imshow(image)
