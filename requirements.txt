@@ -9,3 +9,5 @@ wandb~=0.15.5
 matplotlib~=3.7.2
 diffusers~=0.17.1
 accelerate==0.20.3
+torchmetrics~=1.0.1
+torch-fidelity==0.3.0

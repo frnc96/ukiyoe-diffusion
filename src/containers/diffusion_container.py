@@ -9,26 +9,27 @@ import configuration as config
 from diffusers import UNet2DModel
 from diffusers import DDPMScheduler
 from data.data_loader import ImageDataset
-from skimage.metrics import mean_squared_error
+from torchmetrics.image.fid import FrechetInceptionDistance
 
 
-def evaluate_sample(ground_truth_tensor, generated_tensor):
-    # Convert tensors to numpy arrays
-    output_array = generated_tensor.cpu().squeeze().numpy()
-    ground_truth_array = ground_truth_tensor.cpu().squeeze().numpy()
+def evaluate_sample(generated_image_tensors):
+    fid = FrechetInceptionDistance(feature=64)
 
-    # Calculate Mean Squared Error (MSE)
-    mse = mean_squared_error(ground_truth_array, output_array)
+    dataset = ImageDataset(image_tensor_dir=config.TENSOR_DATASET_PATH)
 
-    # # Calculate Structural Similarity Index (SSIM)
-    # ssim = structural_similarity(
-    #     ground_truth_array,
-    #     output_array,
-    #     multichannel=True,
-    #     channel_axis=0,
-    # )
+    real_image_tensors = torch.cat([
+        dataset.get_random().cpu().unsqueeze(0).to(dtype=torch.uint8) for _ in range(10)
+    ])
+    generated_image_tensors = torch.cat([
+        t.cpu().unsqueeze(0).to(dtype=torch.uint8) for t in generated_image_tensors
+    ])
 
-    return mse
+    fid.update(real_image_tensors, real=True)
+    fid.update(generated_image_tensors, real=False)
+
+    fid_val = fid.compute()
+
+    return fid_val.item()
 
 
 class DiffusionContainer:
@@ -104,6 +105,7 @@ class DiffusionContainer:
         input_tensor = torch.randn_like(ground_truth_tensor).unsqueeze(0).to(config.DEVICE)
 
         output_tensor_list = []
+        last_steps_tensor_list = []
         for time_step in tqdm(self.noise_scheduler.timesteps, desc="Sampling", position=1, leave=False, colour='blue'):
             time_step.to(configuration.DEVICE)
 
@@ -117,8 +119,16 @@ class DiffusionContainer:
             if time_step % (configuration.TRAIN_TIME_STEPS / 10) == 0:
                 output_tensor_list.append(output_tensor.squeeze(0))
 
+            # Save last 10 steps for evaluation
+            if len(last_steps_tensor_list) == 10:
+                last_steps_tensor_list.pop(0)
+
+            last_steps_tensor_list.append(
+                output_tensor.squeeze(0)
+            )
+
         assert len(output_tensor_list) > 0, "No output samples were generated"
 
-        mse = evaluate_sample(ground_truth_tensor, output_tensor_list[-1])
+        fid_val = evaluate_sample(last_steps_tensor_list)
 
-        return output_tensor_list, mse
+        return output_tensor_list, fid_val

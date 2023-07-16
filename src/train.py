@@ -32,7 +32,8 @@ for epoch in tqdm(range(config.EPOCHS), desc="Epochs", position=0, leave=False, 
         loss_val = container.batch_train(images_batch)
 
         # Record the batch loss
-        loss_hist.append(loss_val)
+        if config.USE_WEIGHTS_AND_BIASES:
+            wandb.log('Training Loss', loss_val)
 
     # Save model
     if epoch % 5 == 0:
@@ -43,20 +44,14 @@ for epoch in tqdm(range(config.EPOCHS), desc="Epochs", position=0, leave=False, 
             wandb.log_artifact(model_file_path, name=f'model-epoch-{epoch}', type='Model')
 
     # Sampling
-    output_tensor_list, mse = container.sample()
-
-    progress = {
-        'Training Loss': loss_hist[-1],
-        'Image MSE': mse,
-    }
-
-    # Print progress
-    tqdm.write(str(progress))
+    output_tensor_list, fid_val = container.sample()
     sampled_image_path = helper.plot_sample_images(output_tensor_list, f"samples-epoch-{epoch}")
+
+    tqdm.write(f"FID: {fid_val}")
 
     # Log progress in wandb
     if config.USE_WEIGHTS_AND_BIASES:
-        wandb.log(progress)
+        wandb.log('Image FID', fid_val)
         wandb.log({
             "generated_images_plot": wandb.Image(sampled_image_path)
         })
