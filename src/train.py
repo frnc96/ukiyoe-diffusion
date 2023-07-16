@@ -33,7 +33,7 @@ for epoch in tqdm(range(config.EPOCHS), desc="Epochs", position=0, leave=False, 
 
         # Record the batch loss
         if config.USE_WEIGHTS_AND_BIASES:
-            wandb.log('Training Loss', loss_val)
+            wandb.log({'Training Loss': loss_val})
 
     # Save model
     if epoch % 5 == 0:
@@ -51,7 +51,7 @@ for epoch in tqdm(range(config.EPOCHS), desc="Epochs", position=0, leave=False, 
 
     # Log progress in wandb
     if config.USE_WEIGHTS_AND_BIASES:
-        wandb.log('Image FID', fid_val)
+        wandb.log({'Image FID': fid_val})
         wandb.log({
             "generated_images_plot": wandb.Image(sampled_image_path)
         })
