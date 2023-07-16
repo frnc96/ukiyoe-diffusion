@@ -19,4 +19,4 @@ class ImageDataset(Dataset):
         return torch.load(image_tensor_path).to(config.DEVICE)
 
     def get_random(self):
-        return self.__getitem__(random.randint(0, self.__len__()))
+        return self.__getitem__(random.randint(0, self.__len__() - 1))
