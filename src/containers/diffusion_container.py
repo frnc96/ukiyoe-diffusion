@@ -7,7 +7,6 @@ from tqdm import tqdm
 import torch.optim as optim
 import configuration as config
 from diffusers import UNet2DModel
-from accelerate import Accelerator
 from diffusers import DDPMScheduler
 from data.data_loader import ImageDataset
 from skimage.metrics import mean_squared_error
@@ -44,12 +43,12 @@ class DiffusionContainer:
             down_block_types=(
                 "DownBlock2D",
                 "DownBlock2D",
-                "DownBlock2D",
                 "AttnDownBlock2D",
+                "DownBlock2D",
             ),
             up_block_types=(
-                "AttnUpBlock2D",
                 "UpBlock2D",
+                "AttnUpBlock2D",
                 "UpBlock2D",
                 "UpBlock2D",
             ),
@@ -70,7 +69,6 @@ class DiffusionContainer:
         self.error_fn = nn.MSELoss()
         self.optimizer = optim.Adam(self.model.parameters(), lr=config.LEARNING_RATE)
         self.noise_scheduler = DDPMScheduler(num_train_timesteps=config.TRAIN_TIME_STEPS)
-        self.accelerator = Accelerator()
 
     def batch_train(self, images_batch):
         # Sample noise to add to the images
@@ -86,15 +84,13 @@ class DiffusionContainer:
         # (this is the forward diffusion process)
         noisy_images = self.noise_scheduler.add_noise(images_batch, noise, time_steps)
 
-        with self.accelerator.accumulate(self.model):
-            # Predict the noise residual
-            noise_pred = self.model(noisy_images, time_steps, return_dict=False)[0]
-            loss = self.error_fn(noise_pred, noise)
-            self.accelerator.backward(loss)
+        # Predict the noise residual
+        noise_pred = self.model(noisy_images, time_steps, return_dict=False)[0]
+        loss = self.error_fn(noise_pred, noise)
 
-            self.accelerator.clip_grad_norm_(self.model.parameters(), 1.0)
-            self.optimizer.step()
-            self.optimizer.zero_grad()
+        loss.backward()
+        self.optimizer.step()
+        self.optimizer.zero_grad()
 
         return loss.cpu().item()
 
