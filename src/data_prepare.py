@@ -16,7 +16,7 @@ transform = transforms.Compose([
     transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))  # Normalize the image tensor
 ])
 
-for image_file in tqdm(os.listdir(config.TRAIN_DATASET_PATH)[:32], desc="Preparing Images"):
+for image_file in tqdm(os.listdir(config.TRAIN_DATASET_PATH), desc="Preparing Images"):
     if os.path.exists(
         os.path.join(
             config.TENSOR_DATASET_PATH, image_file.replace('.jpg', '.pt')
@@ -55,8 +55,7 @@ for image_file in tqdm(os.listdir(config.TRAIN_DATASET_PATH)[:32], desc="Prepari
     padded_image.paste(resized_image, (left, top, right, bottom))
 
     # Transform to tensor and normalize
-    if transform is not None:
-        padded_image_tensor = transform(padded_image)
+    padded_image_tensor = transform(padded_image)
 
     # Save tensor as file
     tensor_path = os.path.join(

@@ -22,26 +22,19 @@ def init_wandb() -> wandb:
     return wandb
 
 
-def plot_sample_images(image_dict_list, filename):
-    grid_size = (3, 3)
+def plot_sample_images(image_tensor_list, filename):
+    images_len = len(image_tensor_list)
 
-    fig, ax = plt.subplots(grid_size[0], grid_size[1], figsize=(15, 15))
-    ax = ax.flatten()
+    fig, ax = plt.subplots(1, images_len, figsize=(images_len*5, 5))
 
-    assert len(image_dict_list) >= 9
+    for i, ax in enumerate(ax):
+        image = image_tensor_list[i].permute(1, 2, 0).cpu().numpy()
 
-    for i, dictionary in enumerate(image_dict_list, 0):
-        image_tensor = dictionary['tensor']
-        image = image_tensor.permute(1, 2, 0).cpu().numpy()
-
-        ax[i].imshow(image)
-        ax[i].axis('off')
-
-        if i == 8:
-            break
+        ax.imshow(image)
+        ax.axis('off')
 
     plot_image_path = f"{config.SAMPLED_IMAGES_PATH}/{filename}.jpg"
-    plt.subplots_adjust(wspace=0.05, hspace=0.05)
+    plt.tight_layout()
 
     fig.savefig(Path(plot_image_path))
     plt.close(fig)

@@ -1,8 +1,9 @@
 import os
 import uuid
 import torch
-from tqdm import tqdm
+import configuration
 import torch.nn as nn
+from tqdm import tqdm
 import torch.optim as optim
 import configuration as config
 from diffusers import UNet2DModel
@@ -43,12 +44,12 @@ class DiffusionContainer:
             down_block_types=(
                 "DownBlock2D",
                 "DownBlock2D",
-                "AttnDownBlock2D",
+                "DownBlock2D",
                 "AttnDownBlock2D",
             ),
             up_block_types=(
                 "AttnUpBlock2D",
-                "AttnUpBlock2D",
+                "UpBlock2D",
                 "UpBlock2D",
                 "UpBlock2D",
             ),
@@ -79,7 +80,7 @@ class DiffusionContainer:
         # Sample a random timestep for each image
         time_steps = torch.randint(
             0, config.TRAIN_TIME_STEPS, (bs,), device=config.DEVICE
-        ).long()
+        ).long().to(configuration.DEVICE)
 
         # Add noise to the clean images according to the noise magnitude at each timestep
         # (this is the forward diffusion process)
@@ -93,31 +94,35 @@ class DiffusionContainer:
 
             self.accelerator.clip_grad_norm_(self.model.parameters(), 1.0)
             self.optimizer.step()
-            # lr_scheduler.step()
             self.optimizer.zero_grad()
 
-        return loss.item()
+        return loss.cpu().item()
 
-    def sample(self, nr=10):
+    def sample(self):
         self.model.eval()
 
-        image_tensors = []
-        for _ in tqdm(range(nr), desc="Sampling", position=1, leave=False, colour='blue'):
-            # Create an image composed of noise
-            input_tensor = torch.randn(3, config.IMAGE_RESIZE[0], config.IMAGE_RESIZE[1]).to(config.DEVICE)
+        # Get random ground truth tensor from dataset
+        ground_truth_tensor = ImageDataset(image_tensor_dir=config.TENSOR_DATASET_PATH).get_random()
+
+        # Create an image composed of noise
+        input_tensor = torch.randn_like(ground_truth_tensor).unsqueeze(0).to(config.DEVICE)
+
+        output_tensor_list = []
+        for time_step in tqdm(self.noise_scheduler.timesteps, desc="Sampling", position=1, leave=False, colour='blue'):
+            time_step.to(configuration.DEVICE)
 
             # Generate the output image using the pre-trained model
             with torch.no_grad():
-                output_tensor = self.model(input_tensor)
+                residual = self.model(input_tensor, time_step, return_dict=False)[0]
 
-            # Get random ground truth tensor from dataset
-            ground_truth_tensor = ImageDataset(image_tensor_dir=config.TENSOR_DATASET_PATH).get_random()
+            # Update sample with step
+            output_tensor = self.noise_scheduler.step(residual, time_step, input_tensor).prev_sample
 
-            mse = evaluate_sample(ground_truth_tensor, output_tensor)
+            if time_step % configuration.TRAIN_TIME_STEPS/10 == 0:
+                output_tensor_list.append(output_tensor.squeeze(0))
 
-            image_tensors.append({
-                'tensor': output_tensor,
-                'mse': mse,
-            })
+        assert len(output_tensor_list) > 0, "No output samples were generated"
 
-        return image_tensors
+        mse = evaluate_sample(ground_truth_tensor, output_tensor_list[-1])
+
+        return output_tensor_list, mse

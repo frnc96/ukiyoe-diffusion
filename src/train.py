@@ -43,27 +43,20 @@ for epoch in tqdm(range(config.EPOCHS), desc="Epochs", position=0, leave=False, 
             wandb.log_artifact(model_file_path, name=f'model-epoch-{epoch}', type='Model')
 
     # Sampling
-    output_tensor_list = container.sample(nr=9)
-
-    mse_list = [d['mse'] for d in output_tensor_list]
-    avg_image_mse = sum(mse_list) / len(mse_list)
+    output_tensor_list, mse = container.sample()
 
     progress = {
-        'Average training loss': sum(loss_hist) / len(loss_hist),
-        'Average image MSE': avg_image_mse,
+        'Training Loss': loss_hist[-1],
+        'Image MSE': mse,
     }
+
+    # Print progress
+    tqdm.write(str(progress))
+    sampled_image_path = helper.plot_sample_images(output_tensor_list, f"samples-epoch-{epoch}")
 
     # Log progress in wandb
     if config.USE_WEIGHTS_AND_BIASES:
         wandb.log(progress)
         wandb.log({
-            "generated_images_plot": wandb.Image(
-                helper.plot_sample_images(
-                    output_tensor_list,
-                    f"samples-epoch-{epoch}"
-                )
-            )
+            "generated_images_plot": wandb.Image(sampled_image_path)
         })
-
-    # Print progress
-    tqdm.write(str(progress))
