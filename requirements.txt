@@ -1,13 +1,13 @@
 torch~=2.0.1
 torchvision~=0.15.2
-kaggle~=1.5.15
+kaggle==1.5.16
 tqdm~=4.65.0
 Pillow~=10.0.0
 python-dotenv~=1.0.0
 scikit-image~=0.21.0
 wandb~=0.15.5
 matplotlib~=3.7.2
-diffusers~=0.17.1
-accelerate==0.20.3
+diffusers==0.18.2
+accelerate==0.21.0
 torchmetrics~=1.0.1
 torch-fidelity==0.3.0
