@@ -1,0 +1,30 @@
+wandb: Currently logged in as: frnc (ecg_simula). Use `wandb login --relogin` to force relogin
+wandb: Appending key for api.wandb.ai to your netrc file: /home/frencis/.netrc
+wandb: Currently logged in as: frnc. Use `wandb login --relogin` to force relogin
+wandb: Tracking run with wandb version 0.15.5
+wandb: Run data is saved locally in /global/D1/homes/frencis/ukiyoe-diffusion/wandb/wandb/run-20230716_201308-so058t11
+wandb: Run `wandb offline` to turn off syncing.
+wandb: Syncing run helpful-donkey-6
+wandb: ⭐️ View project at https://wandb.ai/frnc/ukiyoe-diffusion
+wandb: 🚀 View run at https://wandb.ai/frnc/ukiyoe-diffusion/runs/so058t11
+Epochs:   0%|[32m          [0m| 0/100 [00:00<?, ?it/s]
+Batch:   0%|[34m          [0m| 0/127 [00:00<?, ?it/s][A
+                                              [A                                               Traceback (most recent call last):
+  File "/global/D1/homes/frencis/ukiyoe-diffusion/src/train.py", line 36, in <module>
+    wandb.log('Training Loss', loss_val)
+  File "/home/frencis/anaconda3/lib/python3.9/site-packages/wandb/sdk/wandb_run.py", line 389, in wrapper
+    return func(self, *args, **kwargs)
+  File "/home/frencis/anaconda3/lib/python3.9/site-packages/wandb/sdk/wandb_run.py", line 340, in wrapper_fn
+    return func(self, *args, **kwargs)
+  File "/home/frencis/anaconda3/lib/python3.9/site-packages/wandb/sdk/wandb_run.py", line 330, in wrapper
+    return func(self, *args, **kwargs)
+  File "/home/frencis/anaconda3/lib/python3.9/site-packages/wandb/sdk/wandb_run.py", line 1745, in log
+    self._log(data=data, step=step, commit=commit)
+  File "/home/frencis/anaconda3/lib/python3.9/site-packages/wandb/sdk/wandb_run.py", line 1521, in _log
+    raise ValueError("wandb.log must be passed a dictionary")
+ValueError: wandb.log must be passed a dictionary
+wandb: Waiting for W&B process to finish... (failed 1). Press Control-C to abort syncing.
+wandb: 🚀 View run helpful-donkey-6 at: https://wandb.ai/frnc/ukiyoe-diffusion/runs/so058t11
+wandb: Synced 6 W&B file(s), 0 media file(s), 2 artifact file(s) and 0 other file(s)
+wandb: Find logs at: ./wandb/wandb/run-20230716_201308-so058t11/logs
+srun: error: g001: task 0: Exited with exit code 1

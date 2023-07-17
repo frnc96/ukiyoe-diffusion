@@ -1,11 +1,14 @@
 import os
 import torch
 from dotenv import load_dotenv
+from accelerate import Accelerator
 
 # Load environment variables from .env file
 load_dotenv()
 
-DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
+accelerator = Accelerator()
+DEVICE = accelerator.device
+# DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
 KAGGLE_JSON = os.getenv("KAGGLE_JSON")
 
@@ -30,6 +33,7 @@ BATCH_SIZE = 32
 LEARNING_RATE = 0.0003
 IMAGE_RESIZE = (256, 256)
 TRAIN_TIME_STEPS = 1000
+LR_WARMUP_STEPS = 500
 
 HYPER_PARAMETERS = {
     'learning_rate': LEARNING_RATE,

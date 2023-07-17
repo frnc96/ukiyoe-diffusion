@@ -1,7 +1,6 @@
 import os
 import uuid
 import torch
-import configuration
 import torch.nn as nn
 from tqdm import tqdm
 import torch.optim as optim
@@ -10,6 +9,7 @@ from diffusers import UNet2DModel
 from diffusers import DDPMScheduler
 from data.data_loader import ImageDataset
 from torchmetrics.image.fid import FrechetInceptionDistance
+from diffusers.optimization import get_cosine_schedule_with_warmup
 
 
 def evaluate_sample(generated_image_tensors):
@@ -35,7 +35,9 @@ def evaluate_sample(generated_image_tensors):
 class DiffusionContainer:
 
     def __init__(self, load_pretrained=False):
-        self.model = UNet2DModel(
+        self.model_name = str(uuid.uuid4())
+
+        model = UNet2DModel(
             sample_size=config.IMAGE_RESIZE[0],       # the target image resolution
             in_channels=3,                            # the number of input channels, 3 for RGB images
             out_channels=3,                           # the number of output channels
@@ -54,7 +56,21 @@ class DiffusionContainer:
                 "UpBlock2D",
             ),
         ).to(config.DEVICE)
-        self.model_name = str(uuid.uuid4())
+        optimizer = optim.Adam(model.parameters(), lr=config.LEARNING_RATE)
+        lr_scheduler = get_cosine_schedule_with_warmup(
+            optimizer=optimizer,
+            num_warmup_steps=config.LR_WARMUP_STEPS,
+            num_training_steps=((len(os.listdir(config.TENSOR_DATASET_PATH)) // config.BATCH_SIZE) * config.EPOCHS),
+        )
+        
+        model, optimizer, lr_scheduler = config.accelerator.prepare(model, optimizer, lr_scheduler)
+
+        self.model = model
+        self.optimizer = optimizer
+        self.error_fn = nn.MSELoss()
+        self.lr_scheduler = lr_scheduler
+        self.noise_scheduler = DDPMScheduler(num_train_timesteps=config.TRAIN_TIME_STEPS)
+
 
         if load_pretrained:
             models_path_list = os.listdir(config.MODELS_PATH)
@@ -67,10 +83,6 @@ class DiffusionContainer:
             )
             self.model_name = models_path_list[-1].replace('.pth', '')
 
-        self.error_fn = nn.MSELoss()
-        self.optimizer = optim.Adam(self.model.parameters(), lr=config.LEARNING_RATE)
-        self.noise_scheduler = DDPMScheduler(num_train_timesteps=config.TRAIN_TIME_STEPS)
-
     def batch_train(self, images_batch):
         # Sample noise to add to the images
         noise = torch.randn_like(images_batch).to(config.DEVICE)
@@ -79,7 +91,7 @@ class DiffusionContainer:
         # Sample a random timestep for each image
         time_steps = torch.randint(
             0, config.TRAIN_TIME_STEPS, (bs,), device=config.DEVICE
-        ).long().to(configuration.DEVICE)
+        ).long().to(config.DEVICE)
 
         # Add noise to the clean images according to the noise magnitude at each timestep
         # (this is the forward diffusion process)
@@ -89,8 +101,9 @@ class DiffusionContainer:
         noise_pred = self.model(noisy_images, time_steps, return_dict=False)[0]
         loss = self.error_fn(noise_pred, noise)
 
-        loss.backward()
+        config.accelerator.backward(loss)
         self.optimizer.step()
+        self.lr_scheduler.step()
         self.optimizer.zero_grad()
 
         return loss.cpu().item()
@@ -107,7 +120,7 @@ class DiffusionContainer:
         output_tensor_list = []
         last_steps_tensor_list = []
         for time_step in tqdm(self.noise_scheduler.timesteps, desc="Sampling", position=1, leave=False, colour='blue'):
-            time_step.to(configuration.DEVICE)
+            time_step.to(config.DEVICE)
 
             # Generate the output image using the pre-trained model
             with torch.no_grad():
@@ -116,7 +129,7 @@ class DiffusionContainer:
             # Update sample with step
             output_tensor = self.noise_scheduler.step(residual, time_step, input_tensor).prev_sample
 
-            if time_step % (configuration.TRAIN_TIME_STEPS / 10) == 0:
+            if time_step % (config.TRAIN_TIME_STEPS / 10) == 0:
                 output_tensor_list.append(output_tensor.squeeze(0))
 
             # Save last 10 steps for evaluation

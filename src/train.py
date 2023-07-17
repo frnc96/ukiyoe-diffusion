@@ -15,6 +15,7 @@ dataset = ImageDataset(image_tensor_dir=config.TENSOR_DATASET_PATH)
 
 # Create a DataLoader to handle batching and parallel data loading
 data_loader = DataLoader(dataset, batch_size=config.BATCH_SIZE, shuffle=True)
+data_loader = config.accelerator.prepare(data_loader)
 
 # Create container instance where the model lives
 container = DiffusionContainer()
